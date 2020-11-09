@@ -70,6 +70,46 @@ public class DBUtil {
 		return jsonArray;
 	}
  	
+	public static ResultSet selectList(String SQLString, List<ColumnData> param) {
+		ResultSet rs = null;
+		Boolean isEmpty = SQLString.trim().isEmpty();
+		
+		try {			
+			if(!isEmpty) {
+				Connection conn = getConnection();
+				PreparedStatement pstm = conn.prepareStatement(SQLString);
+				ColumnData cd = null;
+				
+				for(int i=0;i<param.size();i++) {
+					cd = param.get(i);
+
+					switch(ColumnInfo.getColumnType()) {				
+					case Types.NUMERIC :											
+					case Types.INTEGER :
+						pstm.setInt(i, (int)cd.getColumnData()); 
+					case Types.FLOAT :
+						pstm.setFloat(i, (Float)cd.getColumnData());
+					case Types.DOUBLE :
+						pstm.setDouble(i, (Double)cd.getColumnData());
+					case Types.DATE :
+						pstm.setDate(i, (Date)cd.getColumnData());
+					case Types.CHAR :
+					default :
+						pstm.setString(i, (String)cd.getColumnData());
+					} 
+					
+				}
+	 
+				rs = pstm.executeQuery();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return rs;
+	}
+	
 	public static ColumnInfo getColumnInfo(ResultSetMetaData rsmd, int idx) {
 		ColumnInfo columnInfo = null;
 		
